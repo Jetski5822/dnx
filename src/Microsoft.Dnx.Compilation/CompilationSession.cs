@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Versioning;
 using Microsoft.Dnx.Compilation.Caching;
 using Microsoft.Dnx.Runtime;
+using Microsoft.Dnx.Runtime.Common.DependencyInjection;
 using Microsoft.Dnx.Runtime.Compilation;
 using Microsoft.Dnx.Runtime.Infrastructure;
 
@@ -12,12 +13,9 @@ namespace Microsoft.Dnx.Compilation
 {
     public class CompilationSession : ICompilationSession
     {
-        private readonly Dictionary<TypeInformation, IProjectCompilerFactory> _compilerFactories = new Dictionary<TypeInformation, IProjectCompilerFactory>();
+        private readonly Dictionary<TypeInformation, IProjectCompiler> _compilers = new Dictionary<TypeInformation, IProjectCompiler>();
 
-        private readonly LibraryManager _libraryManager;
         private readonly IProjectGraphProvider _projectGraphProvider;
-        private readonly IApplicationEnvironment _applicationEnvironment;
-        private readonly IAssemblyLoadContextFactory _loadContextFactory;
         private readonly IServiceProvider _services;
         private readonly Lazy<IAssemblyLoadContext> _compilerLoadContext;
 
@@ -25,25 +23,32 @@ namespace Microsoft.Dnx.Compilation
             ICache cache, 
             ICacheContextAccessor cacheContextAccessor, 
             INamedCacheDependencyProvider namedCacheDependencyProvider, 
-            IApplicationEnvironment applicationEnvironment,
-            IAssemblyLoadContextFactory loadContextFactory,
             IFileWatcher fileWatcher,
             LibraryManager libraryManager, 
             IProjectGraphProvider projectGraphProvider,
-            IServiceProvider services)
+            IServiceProvider runtimeServices)
         {
-            _services = services;
-            _libraryManager = libraryManager;
             _projectGraphProvider = projectGraphProvider;
-            _applicationEnvironment = applicationEnvironment;
-            _loadContextFactory = loadContextFactory;
-            _compilerLoadContext = new Lazy<IAssemblyLoadContext>(() => _loadContextFactory.Create(services));
             LibraryExporter = new LibraryExporter(libraryManager, this, projectGraphProvider);
+            _compilerLoadContext = new Lazy<IAssemblyLoadContext>(() =>
+            {
+                var factory = (IAssemblyLoadContextFactory)_services.GetService(typeof(IAssemblyLoadContextFactory));
+                return factory.Create(_services);
+            });
 
             Cache = cache;
             CacheContextAccessor = cacheContextAccessor;
             NamedCacheDependencyProvider = namedCacheDependencyProvider;
             FileWatcher = fileWatcher;
+
+            // Register compiler services
+            // TODO(anurse): Switch to project factory model to avoid needing to do this.
+            var services = new ServiceProvider(runtimeServices);
+            services.Add(typeof(ICache), cache);
+            services.Add(typeof(ICacheContextAccessor), cacheContextAccessor);
+            services.Add(typeof(INamedCacheDependencyProvider), namedCacheDependencyProvider);
+            services.Add(typeof(IFileWatcher), fileWatcher);
+            _services = services;
         }
 
         public ICache Cache { get; }
@@ -83,19 +88,8 @@ namespace Microsoft.Dnx.Compilation
         public IProjectCompiler GetCompiler(TypeInformation provider)
         {
             // Load the factory
-            var factory = _compilerFactories.GetOrAdd(provider, typeInfo =>
-            {
-                var factoryType = _compilerLoadContext.Value.Load(typeInfo.AssemblyName).GetType(typeInfo.TypeName);
-                return (IProjectCompilerFactory)Activator.CreateInstance(factoryType);
-            });
-            return factory.CreateCompiler(
-                Cache,
-                CacheContextAccessor,
-                NamedCacheDependencyProvider,
-                _loadContextFactory,
-                FileWatcher,
-                _applicationEnvironment,
-                _services);
+            return _compilers.GetOrAdd(provider, typeInfo =>
+                CompilerServices.CreateService<IProjectCompiler>(_services, _compilerLoadContext.Value, typeInfo));
         }
     }
 }

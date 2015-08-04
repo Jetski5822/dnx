@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using Microsoft.Dnx.Runtime;
+using NuGet;
 
 namespace Microsoft.Dnx.Compilation
 {
@@ -179,7 +182,26 @@ namespace Microsoft.Dnx.Compilation
 
         private LibraryExport ExportPackage(RuntimeLibrary library, CompilationTarget target)
         {
-            throw new NotImplementedException();
+            // Assert in debug mode
+            Debug.Assert(library.LockFileLibrary != null, "A package-typed library should have an associated Lock File entry!");
+            Debug.Assert(library.Package != null, "A package-typed library should have an associated Package entry!");
+
+            var references = new Dictionary<string, IMetadataReference>(StringComparer.OrdinalIgnoreCase);
+
+            if (!TryPopulateMetadataReferences(library, target.TargetFramework, references))
+            {
+                return null;
+            }
+
+            // REVIEW: This requires more design
+            var sourceReferences = new List<ISourceReference>();
+
+            foreach (var sharedSource in GetSharedSources(library, target.TargetFramework))
+            {
+                sourceReferences.Add(new SourceFileReference(sharedSource));
+            }
+
+            return new LibraryExport(references.Values.ToList(), sourceReferences);
         }
 
         private LibraryExport ExportProject(RuntimeLibrary library, CompilationTarget target)
@@ -202,7 +224,34 @@ namespace Microsoft.Dnx.Compilation
         private LibraryExport ExportAssemblyLibrary(RuntimeLibrary library, CompilationTarget target)
         {
             // We assume the path is to an assembly 
+            Debug.Assert(library.Path != null, "Expected a GAC or Reference assembly to have a Path!");
             return new LibraryExport(new MetadataFileReference(library.Identity.Name, library.Path));
+        }
+
+        private IEnumerable<string> GetSharedSources(RuntimeLibrary library, FrameworkName targetFramework)
+        {
+            var directory = Path.Combine(library.Path, "shared");
+
+            return library.Package.LockFileLibrary.Files.Where(path => path.StartsWith("shared" + Path.DirectorySeparatorChar))
+                                                            .Select(path => Path.Combine(library.Path, path));
+        }
+
+
+        private bool TryPopulateMetadataReferences(RuntimeLibrary library, FrameworkName targetFramework, IDictionary<string, IMetadataReference> paths)
+        {
+            foreach (var assemblyPath in library.LockFileLibrary.CompileTimeAssemblies)
+            {
+                if (NuGetDependencyResolver.IsPlaceholderFile(assemblyPath))
+                {
+                    continue;
+                }
+
+                var name = Path.GetFileNameWithoutExtension(assemblyPath);
+                var path = Path.Combine(library.Path, assemblyPath);
+                paths[name] = new MetadataFileReference(name, path);
+            }
+
+            return true;
         }
 
         private class Node

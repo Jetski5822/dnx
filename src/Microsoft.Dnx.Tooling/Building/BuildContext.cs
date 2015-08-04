@@ -44,8 +44,6 @@ namespace Microsoft.Dnx.Tooling
 
             _applicationHostContext = GetApplicationHostContext(project, targetFramework, configuration);
             _compilationSession = (CompilationSession)compilationEngine.CreateSession(
-                _applicationHostContext.AssemblyLoadContextFactory,
-                _appEnv,
                 _applicationHostContext.LibraryManager,
                 _applicationHostContext.ProjectGraphProvider,
                 _applicationHostContext.ServiceProvider);

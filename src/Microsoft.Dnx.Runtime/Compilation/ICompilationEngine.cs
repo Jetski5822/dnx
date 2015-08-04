@@ -18,8 +18,6 @@ namespace Microsoft.Dnx.Runtime.Compilation
         /// <param name="projectGraphProvider">A <see cref="IProjectGraphProvider"/> that can be used to retrieve dependency graphs for projects referenced during this compilation</param>
         /// <returns></returns>
         ICompilationSession CreateSession(
-            IAssemblyLoadContextFactory loadContextFactory,
-            IApplicationEnvironment applicationEnvironment,
             LibraryManager libraryManager,
             IProjectGraphProvider projectGraphProvider,
             IServiceProvider services);

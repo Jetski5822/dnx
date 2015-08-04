@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Dnx.Compilation;
 using Microsoft.Dnx.Compilation.Caching;
+using Microsoft.Dnx.Compilation.FileSystem;
 using Microsoft.Dnx.DesignTimeHost.Models;
 using Microsoft.Dnx.Runtime;
 
@@ -15,9 +16,6 @@ namespace Microsoft.Dnx.DesignTimeHost
     {
         private readonly IDictionary<int, ApplicationContext> _contexts;
         private readonly IServiceProvider _services;
-        private readonly ICache _cache;
-        private readonly ICacheContextAccessor _cacheContextAccessor;
-        private readonly INamedCacheDependencyProvider _namedDependencyProvider;
         private readonly ProtocolManager _protocolManager;
         private ProcessingQueue _queue;
         private string _hostId;
@@ -65,6 +63,7 @@ namespace Microsoft.Dnx.DesignTimeHost
 
                     applicationContext = new ApplicationContext(_services,
                                                                 _protocolManager,
+                                                                new CompilationEngine(NoopWatcher.Instance),
                                                                 message.ContextId);
 
                     _contexts.Add(message.ContextId, applicationContext);

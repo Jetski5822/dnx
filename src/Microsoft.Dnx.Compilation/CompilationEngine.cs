@@ -29,8 +29,6 @@ namespace Microsoft.Dnx.Compilation
         public INamedCacheDependencyProvider NamedCacheDependencyProvider { get; }
 
         public ICompilationSession CreateSession(
-            IAssemblyLoadContextFactory loadContextFactory,
-            IApplicationEnvironment applicationEnvironment, 
             LibraryManager libraryManager, 
             IProjectGraphProvider projectGraphProvider,
             IServiceProvider services)
@@ -39,8 +37,6 @@ namespace Microsoft.Dnx.Compilation
                 Cache,
                 _cacheContextAccessor,
                 NamedCacheDependencyProvider,
-                applicationEnvironment,
-                loadContextFactory,
                 FileWatcher,
                 libraryManager,
                 projectGraphProvider,

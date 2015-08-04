@@ -225,7 +225,10 @@ namespace Microsoft.Dnx.Runtime
                     {
                         Path = entry.Value.Description.Path,
                         Resolved = entry.Value.Description.Resolved,
-                        Compatible = entry.Value.Description.Compatible
+                        Compatible = entry.Value.Description.Compatible,
+                        Project = entry.Value.Description.Project,
+                        LockFileLibrary = entry.Value.Description.LockFileLibrary,
+                        Package = entry.Value.Description.Package
                     };
                 }).ToList();
 

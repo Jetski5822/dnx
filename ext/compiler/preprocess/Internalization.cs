@@ -24,11 +24,6 @@ namespace Runtime.Ext.Compiler.Preprocess
 
             candidates.Add(Path.Combine(context.ProjectContext.ProjectDirectory, "..", "..", "submodules"));
 
-            if (context.ProjectContext.Name != "Microsoft.Framework.Runtime")
-            {
-                candidates.Add(Path.Combine(context.ProjectContext.ProjectDirectory, "..", "Microsoft.Framework.Runtime.Hosting"));
-            }
-
             var submodulesDir = Path.Combine(context.ProjectContext.ProjectDirectory, "..", "..", "submodules");
             var replacementDict = new Dictionary<SyntaxTree, SyntaxTree>();
             var removeList = new List<SyntaxTree>();

@@ -139,8 +139,6 @@ Please make sure the runtime matches a framework specified in {Project.ProjectFi
                 _targetFramework);
 
             _compilationSession = _compilationEngine.CreateSession(
-                _applicationHostContext.AssemblyLoadContextFactory,
-                _applicationHostContext.ApplicationEnvironment,
                 _applicationHostContext.LibraryManager, 
                 _applicationHostContext.ProjectGraphProvider,
                 _applicationHostContext.ServiceProvider);

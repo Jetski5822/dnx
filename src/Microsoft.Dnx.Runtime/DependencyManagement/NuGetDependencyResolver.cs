@@ -133,7 +133,9 @@ namespace Microsoft.Dnx.Runtime
                     dependencies)
                 {
                     Resolved = resolved,
-                    Compatible = compatible
+                    Compatible = compatible,
+                    LockFileLibrary = targetLibrary,
+                    Package = package
                 };
             }
 
@@ -356,70 +358,6 @@ namespace Microsoft.Dnx.Runtime
                                         .Select(path => new DefaultPackagePathResolver(path));
         }
 
-        //public LibraryExport GetLibraryExport(CompilationTarget target)
-        //{
-        //    PackageDescription description;
-        //    if (!_packageDescriptions.TryGetValue(target.Name, out description))
-        //    {
-        //        return null;
-        //    }
-
-        //    var references = new Dictionary<string, IMetadataReference>(StringComparer.OrdinalIgnoreCase);
-
-        //    if (!TryPopulateMetadataReferences(description, target.TargetFramework, references))
-        //    {
-        //        return null;
-        //    }
-
-        //    // REVIEW: This requires more design
-        //    var sourceReferences = new List<ISourceReference>();
-
-        //    foreach (var sharedSource in GetSharedSources(description, target.TargetFramework))
-        //    {
-        //        sourceReferences.Add(new SourceFileReference(sharedSource));
-        //    }
-
-        //    return new LibraryExport(references.Values.ToList(), sourceReferences);
-        //}
-
-        //private bool TryPopulateMetadataReferences(PackageDescription description, FrameworkName targetFramework, IDictionary<string, IMetadataReference> paths)
-        //{
-        //    if (_lookup == null)
-        //    {
-        //        return false;
-        //    }
-
-        //    var lookupKey = Tuple.Create((string)null, targetFramework, description.Package.LockFileLibrary.Name);
-
-        //    LockFileTargetLibrary targetLibrary;
-        //    if (!_lookup.TryGetValue(lookupKey, out targetLibrary))
-        //    {
-        //        return false;
-        //    }
-
-        //    foreach (var assemblyPath in targetLibrary.CompileTimeAssemblies)
-        //    {
-        //        if (IsPlaceholderFile(assemblyPath))
-        //        {
-        //            continue;
-        //        }
-
-        //        var name = Path.GetFileNameWithoutExtension(assemblyPath);
-        //        var path = Path.Combine(description.Library.Path, assemblyPath);
-        //        paths[name] = new MetadataFileReference(name, path);
-        //    }
-
-        //    return true;
-        //}
-
-        private IEnumerable<string> GetSharedSources(PackageDescription description, FrameworkName targetFramework)
-        {
-            var directory = Path.Combine(description.Library.Path, "shared");
-
-            return description.Package.LockFileLibrary.Files.Where(path => path.StartsWith("shared" + Path.DirectorySeparatorChar))
-                                                            .Select(path => Path.Combine(description.Library.Path, path));
-        }
-
         private IPackage FindCandidate(string name, SemanticVersion version)
         {
             return _repository.FindPackagesById(name).FirstOrDefault(p => p.Version == version)?.Package;
@@ -462,7 +400,7 @@ namespace Microsoft.Dnx.Runtime
             return bestMatch;
         }
 
-        private static bool IsPlaceholderFile(string path)
+        public static bool IsPlaceholderFile(string path)
         {
             return string.Equals(Path.GetFileName(path), "_._", StringComparison.Ordinal);
         }

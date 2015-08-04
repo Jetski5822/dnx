@@ -26,7 +26,7 @@ namespace Microsoft.Dnx.DesignTimeHost.Models
     public class ProjectWorld
     {
         public ApplicationHostContext ApplicationHostContext { get; set; }
-        public CompilationSession CompilationEngine { get { throw new System.NotImplementedException(); } }
+        public CompilationSession CompilationSession { get; set; }
 
         // State
         public FrameworkName TargetFramework { get; set; }

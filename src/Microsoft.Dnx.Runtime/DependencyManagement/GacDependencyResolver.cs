@@ -61,7 +61,10 @@ namespace Microsoft.Dnx.Runtime
                 libraryRange,
                 new LibraryIdentity(name, version, isGacOrFrameworkReference: true),
                 LibraryTypes.GlobalAssemblyCache,
-                new[] { libraryRange.GetReferenceAssemblyName() });
+                new[] { libraryRange.GetReferenceAssemblyName() })
+            {
+                Path = path
+            };
         }
 
         public void Initialize(IEnumerable<RuntimeLibrary> dependencies, FrameworkName targetFramework, string runtimeIdentifier)

@@ -14,11 +14,11 @@ namespace Microsoft.Dnx.DesignTimeHost
     {
         private readonly Project _project;
         private readonly IApplicationEnvironment _appEnv;
-        private readonly CompilationSession _compilationEngine;
+        private readonly CompilationEngine _compilationEngine;
 
         public DesignTimeAssemblyLoadContextFactory(Project project,
                                                     IApplicationEnvironment appEnv,
-                                                    CompilationSession compilationEngine)
+                                                    CompilationEngine compilationEngine)
         {
             _project = project;
             _appEnv = appEnv;

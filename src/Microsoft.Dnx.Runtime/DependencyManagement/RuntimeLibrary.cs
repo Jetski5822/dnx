@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
+using Microsoft.Dnx.Runtime.DependencyManagement;
+using NuGet;
 
 namespace Microsoft.Dnx.Runtime
 {
@@ -36,6 +38,7 @@ namespace Microsoft.Dnx.Runtime
             : this(requestedRange, identity, LibraryTypes.Project, dependencies, assemblies, framework)
         {
             Path = project.ProjectFilePath;
+            Project = project;
         }
 
         public RuntimeLibrary(
@@ -46,8 +49,6 @@ namespace Microsoft.Dnx.Runtime
             IEnumerable<string> assemblies,
             FrameworkName framework)
         {
-            System.Diagnostics.Debug.Assert(type != LibraryTypes.Project, "Don't use this constructor to create project-typed libraries!");
-
             RequestedRange = requestedRange;
             Identity = identity;
             Type = type;
@@ -67,7 +68,11 @@ namespace Microsoft.Dnx.Runtime
         public bool Compatible { get; set; } = true;
         public IEnumerable<string> Assemblies { get; set; }
         public IEnumerable<LibraryDependency> Dependencies { get; set; }
+
+        // TODO(anurse): UGLY UGLY UGLY! Don't let it go in to dev like this!
         public Project Project { get; set; }
+        public LockFileTargetLibrary LockFileLibrary { get; set; }
+        public PackageInfo Package { get; set; }
 
         internal Library ToLibrary()
         {

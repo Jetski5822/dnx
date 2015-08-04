@@ -48,16 +48,18 @@ namespace Microsoft.Dnx.DesignTimeHost
         private readonly Dictionary<FrameworkName, ProjectCompilation> _compilations = new Dictionary<FrameworkName, ProjectCompilation>();
         private readonly PluginHandler _pluginHandler;
         private readonly ProtocolManager _protocolManager;
+        private readonly CompilationEngine _compilationEngine;
         private int? _contextProtocolVersion;
-        private readonly CompilationSession _compilationEngine;
 
         public ApplicationContext(IServiceProvider services,
                                   ProtocolManager protocolManager,
+                                  CompilationEngine compilationEngine,
                                   int id)
         {
             _hostServices = services;
             _appEnv = (IApplicationEnvironment)services.GetService(typeof(IApplicationEnvironment));
             _pluginHandler = new PluginHandler(services, SendPluginMessage);
+            _compilationEngine = compilationEngine;
             _protocolManager = protocolManager;
 
             Id = id;
@@ -414,6 +416,7 @@ namespace Microsoft.Dnx.DesignTimeHost
                 var projectWorld = new ProjectWorld
                 {
                     ApplicationHostContext = project.DependencyInfo.HostContext,
+                    CompilationSession = project.DependencyInfo.CompilationSession,
                     TargetFramework = project.FrameworkName,
                     Sources = new SourcesMessage
                     {
@@ -555,7 +558,7 @@ namespace Microsoft.Dnx.DesignTimeHost
 
         private bool UpdateProjectCompilation(ProjectWorld project, out ProjectCompilation compilation)
         {
-            var export = project.CompilationEngine.LibraryExporter.ExportLibrary(
+            var export = project.CompilationSession.LibraryExporter.ExportLibrary(
                 new CompilationTarget(_local.ProjectInformation.Name, project.TargetFramework, project.ApplicationHostContext.Configuration, aspect: null));
 
             ProjectCompilation oldCompilation;
@@ -1114,6 +1117,10 @@ namespace Microsoft.Dnx.DesignTimeHost
                     Dependencies = new Dictionary<string, DependencyDescription>(),
                     ProjectReferences = new List<ProjectReference>(),
                     HostContext = applicationHostContext,
+                    CompilationSession = (CompilationSession)_compilationEngine.CreateSession(
+                        applicationHostContext.LibraryManager,
+                        applicationHostContext.ProjectGraphProvider,
+                        applicationHostContext.ServiceProvider),
                     References = new List<string>(),
                     RawReferences = new Dictionary<string, byte[]>(),
                     ExportedSourcesFiles = new List<string>()
@@ -1177,7 +1184,7 @@ namespace Microsoft.Dnx.DesignTimeHost
                     }
                 }
 
-                var exportWithoutProjects = _compilationEngine.LibraryExporter.ExportLibraryGraph(
+                var exportWithoutProjects = info.CompilationSession.LibraryExporter.ExportLibraryGraph(
                     new CompilationTarget(project.Name, frameworkName, applicationHostContext.Configuration, aspect: null),
                     l => l.Type == LibraryTypes.Project);
 
@@ -1316,6 +1323,8 @@ namespace Microsoft.Dnx.DesignTimeHost
             public IList<ProjectReference> ProjectReferences { get; set; }
 
             public IList<string> ExportedSourcesFiles { get; set; }
+
+            public CompilationSession CompilationSession { get; set; }
         }
 
         private class ProjectCompilation
