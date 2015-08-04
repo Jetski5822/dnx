@@ -1,49 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Dnx.Compilation.Caching;
 using Microsoft.Dnx.Runtime;
+using Microsoft.Dnx.Runtime.Compilation;
+using Microsoft.Dnx.Runtime.Infrastructure;
 
 namespace Microsoft.Dnx.Compilation
 {
     public class CompilationEngine : ICompilationEngine
     {
-        public ILibraryExporter LibraryExporter
+        private readonly CacheContextAccessor _cacheContextAccessor;
+
+        public CompilationEngine(IFileWatcher fileWatcher)
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            _cacheContextAccessor = new CacheContextAccessor();
+            Cache = new Cache(_cacheContextAccessor);
+            NamedCacheDependencyProvider = new NamedCacheDependencyProvider();
+            FileWatcher = fileWatcher;
         }
 
-        public ICache Cache
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public ICache Cache { get; }
 
-        public INamedCacheDependencyProvider NamedCacheDependencyProvider
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        } 
+        public IFileWatcher FileWatcher { get; }
 
-        public event Action<string> OnInputFileChanged;
+        public INamedCacheDependencyProvider NamedCacheDependencyProvider { get; }
 
-        public void Dispose()
+        public ICompilationSession CreateSession(
+            IAssemblyLoadContextFactory loadContextFactory,
+            IApplicationEnvironment applicationEnvironment, 
+            LibraryManager libraryManager, 
+            IProjectGraphProvider projectGraphProvider,
+            IServiceProvider services)
         {
-            throw new NotImplementedException();
-        }
-
-        public Assembly CompileAndLoad(string name, string aspect)
-        {
-            throw new NotImplementedException();
+            return new CompilationSession(
+                Cache,
+                _cacheContextAccessor,
+                NamedCacheDependencyProvider,
+                applicationEnvironment,
+                loadContextFactory,
+                FileWatcher,
+                libraryManager,
+                projectGraphProvider,
+                services);
         }
     }
 }

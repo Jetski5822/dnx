@@ -6,6 +6,7 @@ using System.Runtime.Versioning;
 using Microsoft.Dnx.Compilation;
 using Microsoft.Dnx.Compilation.Caching;
 using Microsoft.Dnx.Runtime;
+using Microsoft.Dnx.Runtime.Compilation;
 using Microsoft.Dnx.Runtime.Infrastructure;
 using Microsoft.Dnx.Runtime.Loader;
 using NuGet;
@@ -22,7 +23,7 @@ namespace Microsoft.Dnx.Tooling
         private readonly ApplicationHostContext _applicationHostContext;
 
         private readonly IServiceProvider _hostServices;
-        private readonly CompilationEngine _compilationEngine;
+        private readonly CompilationSession _compilationSession;
         private readonly IApplicationEnvironment _appEnv;
 
         public BuildContext(IServiceProvider hostServices,
@@ -39,10 +40,15 @@ namespace Microsoft.Dnx.Tooling
             _targetFrameworkFolder = VersionUtility.GetShortFrameworkName(_targetFramework);
             _outputPath = Path.Combine(outputPath, _targetFrameworkFolder);
             _hostServices = hostServices;
-            _compilationEngine = compilationEngine;
             _appEnv = appEnv;
 
             _applicationHostContext = GetApplicationHostContext(project, targetFramework, configuration);
+            _compilationSession = (CompilationSession)compilationEngine.CreateSession(
+                _applicationHostContext.AssemblyLoadContextFactory,
+                _appEnv,
+                _applicationHostContext.LibraryManager,
+                _applicationHostContext.ProjectGraphProvider,
+                _applicationHostContext.ServiceProvider);
         }
 
         public void Initialize(IReport report)
@@ -155,7 +161,8 @@ namespace Microsoft.Dnx.Tooling
         private void ShowDependencyInformation(IReport report)
         {
             // Make lookup for actual package dependency assemblies
-            var projectExport = _compilationEngine.LibraryExporter.GetAllExports(_project.Name);
+            var projectExport = _compilationSession.LibraryExporter.ExportLibraryGraph(
+                new CompilationTarget(_project.Name, _targetFramework, _configuration, aspect: null));
             if (projectExport == null)
             {
                 return;
@@ -196,7 +203,7 @@ namespace Microsoft.Dnx.Tooling
         {
             var cacheKey = Tuple.Create("ApplicationContext", project.Name, configuration, targetFramework);
 
-            return _compilationEngine.Cache.Get<ApplicationHostContext>(cacheKey, ctx =>
+            return _compilationSession.Cache.Get<ApplicationHostContext>(cacheKey, ctx =>
             {
                 var applicationHostContext = new ApplicationHostContext(hostServices: _hostServices,
                                                                         projectDirectory: project.ProjectDirectory,

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
-using Microsoft.Framework.Runtime;
 using NuGet;
 
 namespace Microsoft.Dnx.Runtime
@@ -88,12 +87,11 @@ namespace Microsoft.Dnx.Runtime
             return new RuntimeLibrary(
                 libraryRange,
                 new LibraryIdentity(project.Name, project.Version, isGacOrFrameworkReference: false),
-                LibraryTypes.Project,
+                project,
                 dependencies,
                 loadableAssemblies,
                 targetFrameworkInfo.FrameworkName)
             {
-                Path = project.ProjectFilePath,
                 Compatible = !unresolved,
                 Resolved = !unresolved
             };

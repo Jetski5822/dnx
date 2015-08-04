@@ -58,7 +58,6 @@ namespace Microsoft.Dnx.DesignTimeHost
 
         private async Task OpenChannel(int port, string hostId)
         {
-            var compilationEngine = new CompilationEngine();
             var contexts = new Dictionary<int, ApplicationContext>();
             var services = new ServiceProvider(_services);
             var protocolManager = new ProtocolManager(maxVersion: 2);
@@ -81,7 +80,6 @@ namespace Microsoft.Dnx.DesignTimeHost
                 var connection = new ConnectionContext(
                     contexts,
                     services,
-                    compilationEngine,
                     queue,
                     protocolManager,
                     hostId);

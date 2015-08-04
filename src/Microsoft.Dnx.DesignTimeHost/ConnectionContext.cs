@@ -21,18 +21,15 @@ namespace Microsoft.Dnx.DesignTimeHost
         private readonly ProtocolManager _protocolManager;
         private ProcessingQueue _queue;
         private string _hostId;
-        private readonly CompilationEngine _compilationEngine;
 
         public ConnectionContext(IDictionary<int, ApplicationContext> contexts,
                                  IServiceProvider services,
-                                 CompilationEngine compilationEngine,
                                  ProcessingQueue queue,
                                  ProtocolManager protocolManager,
                                  string hostId)
         {
             _contexts = contexts;
             _services = services;
-            _compilationEngine = compilationEngine;
             _queue = queue;
             _hostId = hostId;
             _protocolManager = protocolManager;
@@ -67,7 +64,6 @@ namespace Microsoft.Dnx.DesignTimeHost
                     Logger.TraceInformation("[ConnectionContext]: Creating new application context for {0}", message.ContextId);
 
                     applicationContext = new ApplicationContext(_services,
-                                                                _compilationEngine,
                                                                 _protocolManager,
                                                                 message.ContextId);
 

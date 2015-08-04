@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
 using Microsoft.Dnx.Runtime.Common.DependencyInjection;
+using Microsoft.Dnx.Runtime.Compilation;
 using Microsoft.Dnx.Runtime.Infrastructure;
 using Microsoft.Dnx.Runtime.Loader;
 using NuGet;
@@ -22,19 +23,22 @@ namespace Microsoft.Dnx.Runtime
         private readonly string _projectDirectory;
         private readonly FrameworkName _targetFramework;
         private readonly ApplicationShutdown _shutdown = new ApplicationShutdown();
-        private readonly ICompilationEngine _compilation;
+        private readonly IList<IAssemblyLoader> _loaders = new List<IAssemblyLoader>();
+        private readonly ICompilationEngine _compilationEngine;
+        private ICompilationSession _compilationSession;
 
         private Project _project;
 
         public DefaultHost(RuntimeOptions options,
                            IServiceProvider hostServices,
-                           ICompilationEngine compilation)
+                           IAssemblyLoadContextAccessor loadContextAccessor,
+                           ICompilationEngine compilationEngine)
         {
             _projectDirectory = Path.GetFullPath(options.ApplicationBaseDirectory);
             _targetFramework = options.TargetFramework;
-            _compilation = compilation;
+            _compilationEngine = compilationEngine;
 
-            Initialize(options, hostServices);
+            Initialize(options, hostServices, loadContextAccessor);
         }
 
         public IServiceProvider ServiceProvider
@@ -105,16 +109,9 @@ Please make sure the runtime matches a framework specified in {Project.ProjectFi
 
         public IDisposable AddLoaders(IAssemblyLoaderContainer container)
         {
-            var loaders = new[]
-            {
-                typeof(ProjectAssemblyLoader),
-                typeof(NuGetAssemblyLoader),
-            };
-
             var disposables = new List<IDisposable>();
-            foreach (var loaderType in loaders)
+            foreach (var loader in _loaders)
             {
-                var loader = (IAssemblyLoader)ActivatorUtilities.CreateInstance(ServiceProvider, loaderType);
                 disposables.Add(container.AddLoader(loader));
             }
 
@@ -129,10 +126,10 @@ Please make sure the runtime matches a framework specified in {Project.ProjectFi
 
         public void Dispose()
         {
-            _compilation.Dispose();
+            _compilationSession?.Dispose();
         }
 
-        private void Initialize(RuntimeOptions options, IServiceProvider hostServices)
+        private void Initialize(RuntimeOptions options, IServiceProvider hostServices, IAssemblyLoadContextAccessor loadContextAccessor)
         {
             _applicationHostContext = new ApplicationHostContext(
                 hostServices,
@@ -140,6 +137,13 @@ Please make sure the runtime matches a framework specified in {Project.ProjectFi
                 options.PackageDirectory,
                 options.Configuration,
                 _targetFramework);
+
+            _compilationSession = _compilationEngine.CreateSession(
+                _applicationHostContext.AssemblyLoadContextFactory,
+                _applicationHostContext.ApplicationEnvironment,
+                _applicationHostContext.LibraryManager, 
+                _applicationHostContext.ProjectGraphProvider,
+                _applicationHostContext.ServiceProvider);
 
             Logger.TraceInformation("[{0}]: Project path: {1}", GetType().Name, _projectDirectory);
             Logger.TraceInformation("[{0}]: Project root: {1}", GetType().Name, _applicationHostContext.RootDirectory);
@@ -155,7 +159,7 @@ Please make sure the runtime matches a framework specified in {Project.ProjectFi
 
             if (options.WatchFiles)
             {
-                _compilation.OnInputFileChanged += _ =>
+                _compilationSession.OnInputFileChanged += _ =>
                 {
                     _shutdown.RequestShutdownWaitForDebugger();
                 };
@@ -171,6 +175,15 @@ Please make sure the runtime matches a framework specified in {Project.ProjectFi
             }
 
             CallContextServiceLocator.Locator.ServiceProvider = ServiceProvider;
+
+            // Configure Assembly loaders
+            _loaders.Add(new ProjectAssemblyLoader(
+                _targetFramework,
+                options.Configuration,
+                loadContextAccessor,
+                _applicationHostContext.ProjectResolver,
+                _compilationSession));
+            _loaders.Add(new NuGetAssemblyLoader(loadContextAccessor, _applicationHostContext.NuGetDependencyProvider));
         }
 
         private void AddRuntimeServiceBreadcrumb()

@@ -49,16 +49,14 @@ namespace Microsoft.Dnx.DesignTimeHost
         private readonly PluginHandler _pluginHandler;
         private readonly ProtocolManager _protocolManager;
         private int? _contextProtocolVersion;
-        private readonly CompilationEngine _compilationEngine;
+        private readonly CompilationSession _compilationEngine;
 
         public ApplicationContext(IServiceProvider services,
-                                  CompilationEngine compilationEngine,
                                   ProtocolManager protocolManager,
                                   int id)
         {
             _hostServices = services;
             _appEnv = (IApplicationEnvironment)services.GetService(typeof(IApplicationEnvironment));
-            _compilationEngine = compilationEngine;
             _pluginHandler = new PluginHandler(services, SendPluginMessage);
             _protocolManager = protocolManager;
 
@@ -557,7 +555,8 @@ namespace Microsoft.Dnx.DesignTimeHost
 
         private bool UpdateProjectCompilation(ProjectWorld project, out ProjectCompilation compilation)
         {
-            var export = project.CompilationEngine.LibraryExporter.GetLibraryExport(_local.ProjectInformation.Name);
+            var export = project.CompilationEngine.LibraryExporter.ExportLibrary(
+                new CompilationTarget(_local.ProjectInformation.Name, project.TargetFramework, project.ApplicationHostContext.Configuration, aspect: null));
 
             ProjectCompilation oldCompilation;
             if (!_compilations.TryGetValue(project.TargetFramework, out oldCompilation) ||
@@ -1178,7 +1177,9 @@ namespace Microsoft.Dnx.DesignTimeHost
                     }
                 }
 
-                var exportWithoutProjects = _compilationEngine.LibraryExporter.GetAllExports(project.Name, includeProjects: false);
+                var exportWithoutProjects = _compilationEngine.LibraryExporter.ExportLibraryGraph(
+                    new CompilationTarget(project.Name, frameworkName, applicationHostContext.Configuration, aspect: null),
+                    l => l.Type == LibraryTypes.Project);
 
                 foreach (var reference in exportWithoutProjects.MetadataReferences)
                 {

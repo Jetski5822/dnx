@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
 using Microsoft.Dnx.Compilation.Caching;
+using NuGet;
 using Xunit;
 
 namespace Microsoft.Dnx.Runtime.Tests
@@ -41,23 +42,38 @@ namespace Microsoft.Dnx.Runtime.Tests
             Assert.Equal(expectedReferences, referencingLibraries.Select(y => y.Name).OrderBy(y => y));
         }
 
-        private static LibraryManager CreateManager(IEnumerable<Library> libraryInfo = null)
+        private static LibraryManager CreateManager()
         {
             var frameworkName = new FrameworkName("Net45", new Version(4, 5, 1));
-            libraryInfo = libraryInfo ?? new[]
+            var libraryInfo = new[]
             {
-                new Library("Mvc.RenderingExtensions", new[] { "Mvc.Rendering" }),
-                new Library("Mvc.Rendering", new[] { "DI", "Mvc.Core", "HttpAbstractions" }),
-                new Library("DI", new[] { "Config" }),
-                new Library("Mvc", new[] { "DI", "Mvc.Core", "HttpAbstractions", "Mvc.RenderingExtensions", "Mvc.ModelBinding" }),
-                new Library("Mvc.Core", new[] { "DI", "HttpAbstractions", "Mvc.ModelBinding" }),
-                new Library("Mvc.ModelBinding", new[] { "DI", "HttpAbstractions" }),
-                new Library("HttpAbstractions", Enumerable.Empty<String>()),
-                new Library("Hosting", new[] { "DI"}),
-                new Library("Config", Enumerable.Empty<String>()),
-                new Library("MyApp", new[] { "DI", "Hosting", "Mvc", "HttpAbstractions" })
+                CreateRuntimeLibrary("Mvc.RenderingExtensions", new[] { "Mvc.Rendering"}),
+                CreateRuntimeLibrary("Mvc.RenderingExtensions", new[] { "Mvc.Rendering" }),
+                CreateRuntimeLibrary("Mvc.Rendering", new[] { "DI", "Mvc.Core", "HttpAbstractions" }),
+                CreateRuntimeLibrary("DI", new[] { "Config" }),
+                CreateRuntimeLibrary("Mvc", new[] { "DI", "Mvc.Core", "HttpAbstractions", "Mvc.RenderingExtensions", "Mvc.ModelBinding" }),
+                CreateRuntimeLibrary("Mvc.Core", new[] { "DI", "HttpAbstractions", "Mvc.ModelBinding" }),
+                CreateRuntimeLibrary("Mvc.ModelBinding", new[] { "DI", "HttpAbstractions" }),
+                CreateRuntimeLibrary("HttpAbstractions", Enumerable.Empty<String>()),
+                CreateRuntimeLibrary("Hosting", new[] { "DI"}),
+                CreateRuntimeLibrary("Config", Enumerable.Empty<String>()),
+                CreateRuntimeLibrary("MyApp", new[] { "DI", "Hosting", "Mvc", "HttpAbstractions" })
             };
             return new LibraryManager(() => libraryInfo);
+        }
+
+        private static RuntimeLibrary CreateRuntimeLibrary(string name, IEnumerable<string> dependencies)
+        {
+            var version = new SemanticVersion("1.0.0");
+            return new RuntimeLibrary(
+                new LibraryRange(name, frameworkReference: false),
+                new LibraryIdentity(name, version, isGacOrFrameworkReference: false),
+                LibraryTypes.Package,
+                dependencies.Select(d => new LibraryDependency()
+                {
+                    Library = new LibraryIdentity(name, version, isGacOrFrameworkReference: false),
+                    LibraryRange = new LibraryRange(name, frameworkReference: false)
+                }));
         }
 
         private class EmptyCache : ICache

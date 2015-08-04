@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Microsoft.Framework.Runtime
+﻿namespace Microsoft.Dnx.Runtime
 {
     public static class LibraryTypes
     {

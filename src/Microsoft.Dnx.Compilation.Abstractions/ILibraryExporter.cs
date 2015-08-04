@@ -8,15 +8,15 @@ namespace Microsoft.Dnx.Compilation
     /// </summary>
     public interface ILibraryExporter
     {
-        LibraryExport GetLibraryExport(string name);
+        LibraryExport ExportLibrary(string name);
 
-        LibraryExport GetLibraryExport(string name, string aspect);
+        LibraryExport ExportLibrary(string name, string aspect);
 
-        LibraryExport GetAllExports(string name);
+        LibraryExport ExportLibraryGraph(string name);
 
-        LibraryExport GetAllExports(string name, string aspect);
+        LibraryExport ExportLibraryGraph(string name, string aspect);
 
         // TODO(anurse): Clean this up before review!
-        LibraryExport GetAllExports(string name, bool includeProjects);
+        LibraryExport ExportLibraryGraph(string name, bool includeProjects);
     }
 }

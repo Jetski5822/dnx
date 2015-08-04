@@ -34,6 +34,7 @@ namespace Microsoft.Dnx.Runtime
             RootDirectory = Runtime.ProjectResolver.ResolveRootDirectory(ProjectDirectory);
             ProjectResolver = new ProjectResolver(ProjectDirectory, RootDirectory);
             FrameworkReferenceResolver = new FrameworkReferenceResolver();
+            ProjectGraphProvider = new ProjectGraphProvider(hostServices);
             _serviceProvider = new ServiceProvider(hostServices);
 
             PackagesDirectory = packagesDirectory ?? NuGetDependencyResolver.ResolveRepositoryPath(RootDirectory);
@@ -98,7 +99,7 @@ namespace Microsoft.Dnx.Runtime
                 });
             }
 
-            LibraryManager = new LibraryManager(DependencyWalker);
+            LibraryManager = new LibraryManager(() => DependencyWalker.Libraries);
 
             AssemblyLoadContextFactory = loadContextFactory ?? new RuntimeLoadContextFactory(ServiceProvider);
 
@@ -111,10 +112,10 @@ namespace Microsoft.Dnx.Runtime
             {
                 hostEnvironment = (IApplicationEnvironment)hostServices.GetService(typeof(IApplicationEnvironment));
             }
-            var appEnvironment = new ApplicationEnvironment(Project, targetFramework, configuration, hostEnvironment);
+            ApplicationEnvironment = new ApplicationEnvironment(Project, targetFramework, configuration, hostEnvironment);
 
             // Default services
-            _serviceProvider.Add(typeof(IApplicationEnvironment), appEnvironment);
+            _serviceProvider.Add(typeof(IApplicationEnvironment), ApplicationEnvironment);
             _serviceProvider.Add(typeof(ILibraryManager), LibraryManager);
 
             // Not exposed to the application layer
@@ -157,11 +158,13 @@ namespace Microsoft.Dnx.Runtime
 
         public IProjectResolver ProjectResolver { get; private set; }
 
-        public ILibraryManager LibraryManager { get; private set; }
+        public LibraryManager LibraryManager { get; private set; }
 
         public DependencyWalker DependencyWalker { get; private set; }
 
         public FrameworkReferenceResolver FrameworkReferenceResolver { get; private set; }
+
+        public IProjectGraphProvider ProjectGraphProvider { get; }
 
         public string Configuration { get; private set; }
 
@@ -170,6 +173,7 @@ namespace Microsoft.Dnx.Runtime
         public string ProjectDirectory { get; private set; }
 
         public string PackagesDirectory { get; private set; }
+        public IApplicationEnvironment ApplicationEnvironment { get; private set; }
 
         public IEnumerable<DiagnosticMessage> GetLockFileDiagnostics()
         {

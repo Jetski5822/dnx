@@ -29,11 +29,25 @@ namespace Microsoft.Dnx.Runtime
         public RuntimeLibrary(
             LibraryRange requestedRange,
             LibraryIdentity identity,
+            Project project,
+            IEnumerable<LibraryDependency> dependencies,
+            IEnumerable<string> assemblies,
+            FrameworkName framework)
+            : this(requestedRange, identity, LibraryTypes.Project, dependencies, assemblies, framework)
+        {
+            Path = project.ProjectFilePath;
+        }
+
+        public RuntimeLibrary(
+            LibraryRange requestedRange,
+            LibraryIdentity identity,
             string type, 
             IEnumerable<LibraryDependency> dependencies, 
             IEnumerable<string> assemblies,
             FrameworkName framework)
         {
+            System.Diagnostics.Debug.Assert(type != LibraryTypes.Project, "Don't use this constructor to create project-typed libraries!");
+
             RequestedRange = requestedRange;
             Identity = identity;
             Type = type;
@@ -53,8 +67,9 @@ namespace Microsoft.Dnx.Runtime
         public bool Compatible { get; set; } = true;
         public IEnumerable<string> Assemblies { get; set; }
         public IEnumerable<LibraryDependency> Dependencies { get; set; }
+        public Project Project { get; set; }
 
-        public Library ToLibrary()
+        internal Library ToLibrary()
         {
             return new Library(
                 Identity.Name,

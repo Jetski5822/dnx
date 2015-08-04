@@ -17,7 +17,7 @@ namespace Microsoft.Dnx.Tooling
 
         public DiagnosticResult Build(string name, string outputPath)
         {
-            var export = _libraryExporter.GetLibraryExport(name);
+            var export = _libraryExporter.ExportLibrary(name);
 
             if (export == null)
             {

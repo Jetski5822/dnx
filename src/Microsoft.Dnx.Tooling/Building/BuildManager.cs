@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Dnx.Compilation;
 using Microsoft.Dnx.Compilation.Caching;
+using Microsoft.Dnx.Compilation.FileSystem;
 using Microsoft.Dnx.Runtime;
 using Microsoft.Dnx.Tooling.SourceControl;
 using Microsoft.Dnx.Tooling.Utils;
@@ -67,7 +68,7 @@ namespace Microsoft.Dnx.Tooling
 
             var sw = Stopwatch.StartNew();
 
-            _compilationEngine = new CompilationEngine();
+            _compilationEngine = new CompilationEngine(NoopWatcher.Instance);
 
             var globalSucess = true;
             foreach (var project in projectFilesToBuild)
