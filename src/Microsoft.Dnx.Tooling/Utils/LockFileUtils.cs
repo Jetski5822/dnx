@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,9 +19,9 @@ namespace Microsoft.Dnx.Tooling.Utils
         private static readonly Func<string, object> PlaceholderFileParser =
             s => string.Equals(s, "_._", StringComparison.Ordinal) ? s : null;
 
-        public static LockFileLibrary CreateLockFileLibrary(LockFileLibrary previousLibrary, IPackagePathResolver resolver, IPackage package, string correctedPackageName = null)
+        public static LockFilePackageLibrary CreateLockFilePackageLibrary(LockFilePackageLibrary previousLibrary, IPackagePathResolver resolver, IPackage package, string correctedPackageName = null)
         {
-            var lockFileLib = new LockFileLibrary();
+            var lockFileLib = new LockFilePackageLibrary();
 
             // package.Id is read from nuspec and it might be in wrong casing.
             // correctedPackageName should be the package name used by dependency graph and
@@ -63,7 +66,59 @@ namespace Microsoft.Dnx.Tooling.Utils
             return lockFileLib;
         }
 
-        public static LockFileTargetLibrary CreateLockFileTargetLibrary(LockFileLibrary library, IPackage package, RestoreContext context, string correctedPackageName)
+        public static LockFileLibrary CreateLockFileProjectLibrary(LockFileProjectLibrary previousLibrary,
+                                                                   Runtime.Project project,
+                                                                   Runtime.Project library)
+        {
+            var result = new LockFileProjectLibrary()
+            {
+                Name = library.Name,
+                Version = library.Version
+            };
+
+            if (previousLibrary?.Name == library.Name && previousLibrary?.Version == library.Version)
+            {
+                result.RelativePath = previousLibrary.RelativePath;
+            }
+            else
+            {
+                result.RelativePath = PathUtility.GetRelativePath(project.ProjectFilePath, library.ProjectFilePath, '/');
+            }
+
+            return result;
+        }
+
+        public static LockFileTargetLibrary CreateLockFileTargetLibrary(LockFileProjectLibrary library,
+                                                                        Runtime.Project projectInfo,
+                                                                        RestoreContext context)
+        {
+            var lockFileLib = new LockFileTargetLibrary
+            {
+                Name = library.Name,
+                Version = library.Version
+            };
+
+            var dependencies = (IEnumerable<Runtime.LibraryDependency>)projectInfo.Dependencies;
+            var frameworkInformation = projectInfo.GetTargetFrameworks();
+
+            var targetFramework = frameworkInformation.FirstOrDefault(info => info.FrameworkName == context.FrameworkName) ??
+                                  frameworkInformation.FirstOrDefault(info => info.FrameworkName == VersionUtility.GetNearest(context.FrameworkName, frameworkInformation.Select(fi => fi.FrameworkName)));
+
+            if (targetFramework != null)
+            {
+                dependencies = dependencies.Concat(targetFramework.Dependencies);
+            }
+
+            lockFileLib.Dependencies = dependencies.Select(d => new PackageDependency(d.LibraryRange.Name, d.LibraryRange.VersionRange))
+                                                   .ToList();
+
+            return lockFileLib;
+        }
+
+        public static LockFileTargetLibrary CreateLockFileTargetLibrary(LockFilePackageLibrary library,
+                                                                        IPackage package,
+                                                                        RestoreContext context,
+                                                                        string correctedPackageName)
         {
             var lockFileLib = new LockFileTargetLibrary();
 
@@ -75,6 +130,7 @@ namespace Microsoft.Dnx.Tooling.Utils
             // it has the correct casing that runtime needs during dependency resolution.
             lockFileLib.Name = correctedPackageName ?? package.Id;
             lockFileLib.Version = package.Version;
+
             var files = library.Files.Select(p => p.Replace(Path.DirectorySeparatorChar, '/'));
             var contentItems = new ContentItemCollection();
             contentItems.Load(files);

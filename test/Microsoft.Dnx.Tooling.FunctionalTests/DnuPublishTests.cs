@@ -545,13 +545,20 @@ exec ""{2}{3}"" --appbase ""${0}"" Microsoft.Dnx.ApplicationHost --configuration
     'Lib': [ 'project.json' ],
     '.': [ 'global.json' ]
 }";
-            string expectedAppLockFile = @"{
+
+string expectedAppLockFile = @"{
   ""locked"": false,
   ""version"": LOCKFILEFORMAT_VERSION,
   ""targets"": {
-    ""DNX,Version=v4.6"": {}
+    ""DNX,Version=v4.6"": {
+      ""Lib/1.0.0"": {}
+    }
   },
-  ""libraries"": {},
+  ""libraries"": {
+    ""Lib/1.0.0"": {
+      ""relativePath"": ""../Lib/project.json""
+    }
+  },
   ""projectFileDependencyGroups"": {
     """": [
       ""Lib ""

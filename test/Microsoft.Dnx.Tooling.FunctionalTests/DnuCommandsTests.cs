@@ -161,10 +161,10 @@ namespace Microsoft.Dnx.Tooling.FunctionalTests
                 Islocked = false,
                 Libraries = new List<LockFileLibrary>
                             {
-                                new LockFileLibrary
+                                new LockFilePackageLibrary
                                 {
                                     Name = libName,
-                                    Version = new NuGet.SemanticVersion(version),
+                                    Version = new SemanticVersion(version),
                                     Sha512 = "TestSha"
                                 }
                             }
