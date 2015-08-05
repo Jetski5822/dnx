@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.Versioning;
 using NuGet;
 
-namespace Microsoft.Dnx.Runtime.DependencyManagement
+namespace Microsoft.Dnx.Runtime
 {
     public class LockFileLibrary
     {
