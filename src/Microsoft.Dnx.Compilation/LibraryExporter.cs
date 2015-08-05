@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using Microsoft.Dnx.Runtime;
-using NuGet;
 
 namespace Microsoft.Dnx.Compilation
 {
@@ -223,8 +222,12 @@ namespace Microsoft.Dnx.Compilation
         {
             var directory = Path.Combine(library.Path, "shared");
 
-            return library.Package.LockFileLibrary.Files.Where(path => path.StartsWith("shared" + Path.DirectorySeparatorChar))
-                                                            .Select(path => Path.Combine(library.Path, path));
+            return library
+                .Package
+                .LockFileLibrary
+                .Files
+                .Where(path => path.StartsWith("shared" + Path.DirectorySeparatorChar))
+                .Select(path => Path.Combine(library.Path, path));
         }
 
 

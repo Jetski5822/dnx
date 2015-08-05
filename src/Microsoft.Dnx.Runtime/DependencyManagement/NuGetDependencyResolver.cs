@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
-using Microsoft.Dnx.Runtime.DependencyManagement;
 using NuGet;
 
 namespace Microsoft.Dnx.Runtime

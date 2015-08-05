@@ -29,6 +29,7 @@ namespace Microsoft.Dnx.DesignTimeHost
 
         public void Main(string[] args)
         {
+
             // Expect: port, host processid, hostID string
             if (args.Length < 3)
             {
@@ -67,6 +68,7 @@ namespace Microsoft.Dnx.DesignTimeHost
             listenSocket.Bind(new IPEndPoint(IPAddress.Loopback, port));
             listenSocket.Listen(10);
 
+            Console.WriteLine($"Process ID {Process.GetCurrentProcess().Id}");
             Console.WriteLine("Listening on port {0}", port);
 
             for (; ;)

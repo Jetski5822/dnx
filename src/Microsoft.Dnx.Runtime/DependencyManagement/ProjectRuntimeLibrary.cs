@@ -15,6 +15,7 @@ namespace Microsoft.Dnx.Runtime
                 base(
                     libraryRange,
                     new LibraryIdentity(project.Name, project.Version, isGacOrFrameworkReference: false),
+                    project.ProjectFilePath,
                     LibraryTypes.Project,
                     dependencies,
                     assemblies,

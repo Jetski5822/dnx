@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Versioning;
-using Microsoft.Dnx.Runtime.DependencyManagement;
-using NuGet;
 
 namespace Microsoft.Dnx.Runtime
 {
@@ -16,11 +13,13 @@ namespace Microsoft.Dnx.Runtime
         public RuntimeLibrary(
             LibraryRange requestedRange,
             LibraryIdentity identity,
+            string path,
             string type, 
             IEnumerable<LibraryDependency> dependencies, 
             IEnumerable<string> assemblies,
             FrameworkName framework)
         {
+            Path = path;
             RequestedRange = requestedRange;
             Identity = identity;
             Type = type;

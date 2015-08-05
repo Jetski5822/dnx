@@ -1,6 +1,5 @@
-﻿using Microsoft.Dnx.Runtime.DependencyManagement;
-using System;
-using System.IO;
+﻿using System.IO;
+using Microsoft.Dnx.Runtime;
 
 namespace NuGet
 {

@@ -14,8 +14,9 @@ namespace Microsoft.Dnx.Runtime
             return new RuntimeLibrary(
                 libraryRange,
                 new LibraryIdentity(libraryRange.Name, libraryRange.VersionRange?.MinVersion, libraryRange.IsGacOrFrameworkReference),
-                LibraryTypes.Unresolved,
-                Enumerable.Empty<LibraryDependency>(),
+                path: null,
+                type: LibraryTypes.Unresolved,
+                dependencies: Enumerable.Empty<LibraryDependency>(),
                 assemblies: Enumerable.Empty<string>(),
                 framework: null)
             {

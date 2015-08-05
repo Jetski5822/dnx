@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Dnx.Runtime.DependencyManagement;
 using NuGet;
 
 namespace Microsoft.Dnx.Runtime
@@ -17,8 +16,9 @@ namespace Microsoft.Dnx.Runtime
             : base(
                   requestedRange,
                   new LibraryIdentity(package.Id, package.Version, isGacOrFrameworkReference: false),
-                  LibraryTypes.Package,
-                  dependencies,
+                  path: null,
+                  type: LibraryTypes.Package,
+                  dependencies: dependencies,
                   assemblies: Enumerable.Empty<string>(),
                   framework: null)
         {

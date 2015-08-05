@@ -9,16 +9,12 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime.Versioning;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Dnx.Runtime;
 using Microsoft.Dnx.Tooling.Publish;
-using Microsoft.Dnx.Tooling.Restore;
 using Microsoft.Dnx.Tooling.Restore.RuntimeModel;
 using Microsoft.Dnx.Tooling.Utils;
-using Microsoft.Dnx.Runtime;
-using Microsoft.Dnx.Compilation;
-using Microsoft.Dnx.Runtime.DependencyManagement;
 using NuGet;
 
 namespace Microsoft.Dnx.Tooling

@@ -68,6 +68,7 @@ namespace Microsoft.Dnx.Runtime.Tests
             return new RuntimeLibrary(
                 new LibraryRange(name, frameworkReference: false),
                 new LibraryIdentity(name, version, isGacOrFrameworkReference: false),
+                "Test",
                 LibraryTypes.Package,
                 dependencies.Select(d => new LibraryDependency()
                 {

@@ -200,6 +200,7 @@ namespace Loader.Tests
             return new RuntimeLibrary(
                 libraryRange,
                 new LibraryIdentity(libraryRange.Name, libraryRange.VersionRange.MinVersion, isGacOrFrameworkReference: false),
+                path: "Test",
                 type: "Test",
                 dependencies: entry.Dependencies,
                 assemblies: Enumerable.Empty<string>(),

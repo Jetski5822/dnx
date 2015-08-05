@@ -60,21 +60,15 @@ namespace Microsoft.Dnx.Runtime
             return new RuntimeLibrary(
                 libraryRange,
                 new LibraryIdentity(name, version, isGacOrFrameworkReference: true),
+                path,
                 LibraryTypes.GlobalAssemblyCache,
                 Enumerable.Empty<LibraryDependency>(),
                 new[] { libraryRange.GetReferenceAssemblyName() },
-                framework: null)
-            {
-                Path = path
-            };
+                framework: null);
         }
 
         public void Initialize(IEnumerable<RuntimeLibrary> dependencies, FrameworkName targetFramework, string runtimeIdentifier)
         {
-            foreach (var d in dependencies)
-            {
-                d.Path = _resolvedPaths[d.Identity.Name];
-            }
         }
 
         private bool TryResolvePartialName(string name, SemanticVersion version, out string assemblyLocation)

@@ -7,11 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using Microsoft.Dnx.Tooling.Restore.NuGet;
 using Microsoft.Dnx.Runtime;
-using Microsoft.Dnx.Runtime.DependencyManagement;
-using NuGet;
+using Microsoft.Dnx.Tooling.Restore.NuGet;
 using Microsoft.Dnx.Tooling.Restore.RuntimeModel;
+using NuGet;
 
 namespace Microsoft.Dnx.Tooling
 {

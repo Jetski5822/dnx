@@ -1186,7 +1186,7 @@ namespace Microsoft.Dnx.DesignTimeHost
 
                 var exportWithoutProjects = info.CompilationSession.LibraryExporter.ExportLibraryGraph(
                     new CompilationTarget(project.Name, frameworkName, applicationHostContext.Configuration, aspect: null),
-                    l => l.Type == LibraryTypes.Project);
+                    l => l.Type != LibraryTypes.Project);
 
                 foreach (var reference in exportWithoutProjects.MetadataReferences)
                 {

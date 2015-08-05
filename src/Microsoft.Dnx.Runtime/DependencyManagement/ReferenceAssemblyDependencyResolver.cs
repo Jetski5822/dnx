@@ -61,13 +61,11 @@ namespace Microsoft.Dnx.Runtime
                 return new RuntimeLibrary(
                     libraryRange,
                     new LibraryIdentity(libraryRange.Name, new SemanticVersion(assemblyVersion), isGacOrFrameworkReference: true),
+                    path,
                     LibraryTypes.ReferenceAssembly,
                     Enumerable.Empty<LibraryDependency>(),
                     new[] { name },
-                    framework: null)
-                {
-                    Path = path
-                };
+                    framework: null);
             }
 
             return null;
