@@ -185,7 +185,7 @@ namespace Loader.Tests
             return null;
         }
 
-        public RuntimeLibrary GetDescription(LibraryRange libraryRange, FrameworkName frameworkName)
+        public LibraryResolution GetDescription(LibraryRange libraryRange, FrameworkName frameworkName)
         {
             Logger.TraceInformation("StubAssemblyLoader.GetDependencies {0} {1} {2}", libraryRange.Name, libraryRange.VersionRange, frameworkName);
             Entry entry;
@@ -197,7 +197,7 @@ namespace Loader.Tests
             var d = entry.Dependencies as LibraryDependency[] ?? entry.Dependencies.ToArray();
             Logger.TraceInformation("StubAssemblyLoader.GetDependencies {0} {1}", d.Aggregate("", (a, b) => a + " " + b), frameworkName);
 
-            return new RuntimeLibrary(
+            return new LibraryResolution(
                 libraryRange,
                 new LibraryIdentity(libraryRange.Name, libraryRange.VersionRange.MinVersion, isGacOrFrameworkReference: false),
                 path: "Test",
@@ -207,7 +207,7 @@ namespace Loader.Tests
                 framework: null);
         }
 
-        public void Initialize(IEnumerable<RuntimeLibrary> packages, FrameworkName frameworkName, string runtimeIdentifier)
+        public void Initialize(IEnumerable<LibraryResolution> packages, FrameworkName frameworkName, string runtimeIdentifier)
         {
             var d = packages.Select(CreateDependency).ToArray();
 
@@ -217,7 +217,7 @@ namespace Loader.Tests
             FrameworkName = frameworkName;
         }
 
-        private static LibraryDependency CreateDependency(RuntimeLibrary libraryDescription)
+        private static LibraryDependency CreateDependency(LibraryResolution libraryDescription)
         {
             return new LibraryDependency
             {

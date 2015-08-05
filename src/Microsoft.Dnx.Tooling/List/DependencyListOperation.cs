@@ -47,7 +47,7 @@ namespace Microsoft.Dnx.Tooling.List
             return true;
         }
 
-        private void Render(IGraphNode<RuntimeLibrary> root)
+        private void Render(IGraphNode<LibraryResolution> root)
         {
             var renderer = new LibraryDependencyFlatRenderer(_options.Details,
                                                              _options.ResultsFilter,

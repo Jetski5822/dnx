@@ -12,7 +12,7 @@ namespace Microsoft.Dnx.Runtime
             _hostServices = hostServices;
         }
 
-        public IEnumerable<RuntimeLibrary> GetProjectGraph(Project project, CompilationTarget target)
+        public IEnumerable<LibraryResolution> GetProjectGraph(Project project, CompilationTarget target)
         {
             // TODO: Cache sub-graph walk?
 

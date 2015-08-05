@@ -4,9 +4,9 @@ using NuGet;
 
 namespace Microsoft.Dnx.Runtime
 {
-    public class PackageRuntimeLibrary : RuntimeLibrary
+    public class PackageLibraryResolution : LibraryResolution
     {
-        public PackageRuntimeLibrary(
+        public PackageLibraryResolution(
             LibraryRange requestedRange, 
             PackageInfo package, 
             LockFileTargetLibrary lockFileLibrary, 

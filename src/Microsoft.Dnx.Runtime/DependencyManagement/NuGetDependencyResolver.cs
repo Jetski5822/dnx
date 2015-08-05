@@ -25,7 +25,7 @@ namespace Microsoft.Dnx.Runtime
         public NuGetDependencyResolver(PackageRepository repository)
         {
             _repository = repository;
-            Dependencies = Enumerable.Empty<RuntimeLibrary>();
+            Dependencies = Enumerable.Empty<LibraryResolution>();
         }
 
         public IDictionary<AssemblyName, PackageAssembly> PackageAssemblyLookup
@@ -36,7 +36,7 @@ namespace Microsoft.Dnx.Runtime
             }
         }
 
-        public IEnumerable<RuntimeLibrary> Dependencies { get; private set; }
+        public IEnumerable<LibraryResolution> Dependencies { get; private set; }
 
         public void ApplyLockFile(LockFile lockFile)
         {
@@ -62,7 +62,7 @@ namespace Microsoft.Dnx.Runtime
             };
         }
 
-        public RuntimeLibrary GetDescription(LibraryRange libraryRange, FrameworkName targetFramework)
+        public LibraryResolution GetDescription(LibraryRange libraryRange, FrameworkName targetFramework)
         {
             if (libraryRange.IsGacOrFrameworkReference)
             {
@@ -125,7 +125,7 @@ namespace Microsoft.Dnx.Runtime
                     dependencies = GetDependencies(package, targetFramework, targetLibrary: null);
                 }
 
-                return new PackageRuntimeLibrary(
+                return new PackageLibraryResolution(
                     libraryRange,
                     package,
                     targetLibrary,
@@ -219,7 +219,7 @@ namespace Microsoft.Dnx.Runtime
             }
         }
 
-        public void Initialize(IEnumerable<RuntimeLibrary> packages, FrameworkName targetFramework, string runtimeIdentifier)
+        public void Initialize(IEnumerable<LibraryResolution> packages, FrameworkName targetFramework, string runtimeIdentifier)
         {
             Dependencies = packages;
 
@@ -441,7 +441,7 @@ namespace Microsoft.Dnx.Runtime
         {
             public PackageInfo Package { get; set; }
 
-            public RuntimeLibrary Library { get; set; }
+            public LibraryResolution Library { get; set; }
 
             public string ContractPath { get; set; }
         }

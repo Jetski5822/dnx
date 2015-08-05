@@ -3,9 +3,9 @@ using System.Runtime.Versioning;
 
 namespace Microsoft.Dnx.Runtime
 {
-    public class ProjectRuntimeLibrary : RuntimeLibrary
+    public class ProjectLibraryResolution : LibraryResolution
     {
-        public ProjectRuntimeLibrary(
+        public ProjectLibraryResolution(
             LibraryRange libraryRange, 
             Project project, 
             IEnumerable<LibraryDependency> dependencies, 

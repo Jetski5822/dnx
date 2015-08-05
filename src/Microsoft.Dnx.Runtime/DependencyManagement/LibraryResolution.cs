@@ -8,9 +8,12 @@ using System.Runtime.Versioning;
 
 namespace Microsoft.Dnx.Runtime
 {
-    public class RuntimeLibrary
+    /// <summary>
+    /// Represents the result of resolving the library
+    /// </summary>
+    public class LibraryResolution
     {
-        public RuntimeLibrary(
+        public LibraryResolution(
             LibraryRange requestedRange,
             LibraryIdentity identity,
             string path,

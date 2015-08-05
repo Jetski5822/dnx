@@ -8,6 +8,6 @@ namespace Microsoft.Dnx.Runtime
     /// </summary>
     public interface IProjectGraphProvider
     {
-        IEnumerable<RuntimeLibrary> GetProjectGraph(Project project, CompilationTarget target);
+        IEnumerable<LibraryResolution> GetProjectGraph(Project project, CompilationTarget target);
     }
 }

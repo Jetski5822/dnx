@@ -23,7 +23,7 @@ namespace Microsoft.Dnx.Tooling.List
             _listedProjects = new HashSet<string>(listedProjects);
         }
 
-        public IEnumerable<string> GetRenderContent(IGraphNode<RuntimeLibrary> root)
+        public IEnumerable<string> GetRenderContent(IGraphNode<LibraryResolution> root)
         {
             var dict = FindImmediateDependent(root);
             var libraries = dict.Keys.OrderBy(description => description.Identity.Name);
@@ -50,24 +50,24 @@ namespace Microsoft.Dnx.Tooling.List
             return results;
         }
 
-        private IDictionary<RuntimeLibrary, ISet<RuntimeLibrary>> FindImmediateDependent(IGraphNode<RuntimeLibrary> root)
+        private IDictionary<LibraryResolution, ISet<LibraryResolution>> FindImmediateDependent(IGraphNode<LibraryResolution> root)
         {
-            var result = new Dictionary<RuntimeLibrary, ISet<RuntimeLibrary>>();
+            var result = new Dictionary<LibraryResolution, ISet<LibraryResolution>>();
 
-            IGraphNodeExtensions.DepthFirstPreOrderWalk<Runtime.RuntimeLibrary>(
-root,                visitNode: (Func<IGraphNode<Runtime.RuntimeLibrary>, IEnumerable<IGraphNode<Runtime.RuntimeLibrary>>, bool>)((IGraphNode<Runtime.RuntimeLibrary> node, IEnumerable<IGraphNode<Runtime.RuntimeLibrary>> ancestors) =>
+            IGraphNodeExtensions.DepthFirstPreOrderWalk<Runtime.LibraryResolution>(
+root,                visitNode: (Func<IGraphNode<Runtime.LibraryResolution>, IEnumerable<IGraphNode<Runtime.LibraryResolution>>, bool>)((IGraphNode<Runtime.LibraryResolution> node, IEnumerable<IGraphNode<Runtime.LibraryResolution>> ancestors) =>
                 {
-                    ISet<Runtime.RuntimeLibrary> slot;
-                    if (!result.TryGetValue((RuntimeLibrary)node.Item, out slot))
+                    ISet<Runtime.LibraryResolution> slot;
+                    if (!result.TryGetValue((LibraryResolution)node.Item, out slot))
                     {
-                        slot = new HashSet<Runtime.RuntimeLibrary>();
-                        result.Add((RuntimeLibrary)node.Item, (ISet<Runtime.RuntimeLibrary>)slot);
+                        slot = new HashSet<Runtime.LibraryResolution>();
+                        result.Add((LibraryResolution)node.Item, (ISet<Runtime.LibraryResolution>)slot);
                     }
 
                     // first item in the path is the immediate parent
                     if (ancestors.Any())
                     {
-                        slot.Add((Runtime.RuntimeLibrary)ancestors.First().Item);
+                        slot.Add((Runtime.LibraryResolution)ancestors.First().Item);
                     }
 
                     return true;
@@ -79,8 +79,8 @@ root,                visitNode: (Func<IGraphNode<Runtime.RuntimeLibrary>, IEnume
             return result;
         }
 
-        private void RenderLibraries(IEnumerable<RuntimeLibrary> descriptions,
-                                     IDictionary<RuntimeLibrary, ISet<RuntimeLibrary>> dependenciesMap,
+        private void RenderLibraries(IEnumerable<LibraryResolution> descriptions,
+                                     IDictionary<LibraryResolution, ISet<LibraryResolution>> dependenciesMap,
                                      IList<string> results)
         {
             if (!string.IsNullOrEmpty(_filterPattern))

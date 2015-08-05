@@ -13,7 +13,6 @@ namespace Microsoft.Dnx.Compilation
 {
     public class LibraryExporter
     {
-        private readonly Dictionary<string, Func<RuntimeLibrary, CompilationTarget, LibraryExport>> _exporters;
         private readonly LibraryManager _manager;
         private readonly CompilationSession _compilationEngine;
         private readonly IProjectGraphProvider _projectGraphProvider;
@@ -23,13 +22,6 @@ namespace Microsoft.Dnx.Compilation
             _manager = manager;
             _compilationEngine = compilationEngine;
             _projectGraphProvider = projectGraphProvider;
-            _exporters = new Dictionary<string, Func<RuntimeLibrary, CompilationTarget, LibraryExport>>()
-            {
-                { LibraryTypes.GlobalAssemblyCache, ExportAssemblyLibrary },
-                { LibraryTypes.ReferenceAssembly, ExportAssemblyLibrary },
-                { LibraryTypes.Project, ExportProject },
-                { LibraryTypes.Package, ExportPackage }
-            };
         }
 
         public LibraryExport ExportLibraryGraph(
@@ -51,7 +43,7 @@ namespace Microsoft.Dnx.Compilation
         }
 
         public LibraryExport ExportLibraryGraph(
-            RuntimeLibrary library,
+            LibraryResolution library,
             CompilationTarget target,
             bool dependenciesOnly)
         {
@@ -67,7 +59,7 @@ namespace Microsoft.Dnx.Compilation
         }
 
         public LibraryExport ExportLibraryGraph(
-            RuntimeLibrary projectLibrary,
+            LibraryResolution projectLibrary,
             CompilationTarget target,
             Func<Library, bool> include)
         {
@@ -169,20 +161,26 @@ namespace Microsoft.Dnx.Compilation
             return ExportLibrary(library, target);
         }
 
-        private LibraryExport ExportLibrary(RuntimeLibrary library, CompilationTarget target)
+        private LibraryExport ExportLibrary(LibraryResolution library, CompilationTarget target)
         {
-            Func<RuntimeLibrary, CompilationTarget, LibraryExport> exporter;
-            if (!_exporters.TryGetValue(library.Type, out exporter))
+            if (string.Equals(LibraryTypes.Package, library.Type, StringComparison.Ordinal))
             {
-                return null;
+                return ExportPackage((PackageLibraryResolution)library, target);
             }
-            return exporter(library, target);
+            else if (string.Equals(LibraryTypes.Project, library.Type, StringComparison.Ordinal))
+            {
+                return ExportProject((ProjectLibraryResolution)library, target);
+            }
+            else
+            {
+                return ExportAssemblyLibrary(library, target);
+            }
         }
 
-        private LibraryExport ExportPackage(RuntimeLibrary library, CompilationTarget target)
+        private LibraryExport ExportPackage(LibraryResolution library, CompilationTarget target)
         {
             // Assert in debug mode
-            var packageLibrary = (PackageRuntimeLibrary)library;
+            var packageLibrary = (PackageLibraryResolution)library;
 
             var references = new Dictionary<string, IMetadataReference>(StringComparer.OrdinalIgnoreCase);
 
@@ -202,23 +200,28 @@ namespace Microsoft.Dnx.Compilation
             return new LibraryExport(references.Values.ToList(), sourceReferences);
         }
 
-        private LibraryExport ExportProject(RuntimeLibrary library, CompilationTarget target)
+        private LibraryExport ExportProject(LibraryResolution library, CompilationTarget target)
         {
             return ProjectExporter.ExportProject(
-                ((ProjectRuntimeLibrary)library).Project,
+                ((ProjectLibraryResolution)library).Project,
                 target,
                 _compilationEngine,
                 _projectGraphProvider);
         }
 
-        private LibraryExport ExportAssemblyLibrary(RuntimeLibrary library, CompilationTarget target)
+        private LibraryExport ExportAssemblyLibrary(LibraryResolution library, CompilationTarget target)
         {
+            if(string.IsNullOrEmpty(library.Path))
+            {
+                Logger.TraceError($"[{nameof(LibraryExporter)}] Failed to export: {library.Identity.Name}");
+                return null;
+            }
+
             // We assume the path is to an assembly 
-            Debug.Assert(library.Path != null, "Expected a GAC or Reference assembly to have a Path!");
             return new LibraryExport(new MetadataFileReference(library.Identity.Name, library.Path));
         }
 
-        private IEnumerable<string> GetSharedSources(PackageRuntimeLibrary library, FrameworkName targetFramework)
+        private IEnumerable<string> GetSharedSources(PackageLibraryResolution library, FrameworkName targetFramework)
         {
             var directory = Path.Combine(library.Path, "shared");
 
@@ -231,7 +234,7 @@ namespace Microsoft.Dnx.Compilation
         }
 
 
-        private bool TryPopulateMetadataReferences(PackageRuntimeLibrary library, FrameworkName targetFramework, IDictionary<string, IMetadataReference> paths)
+        private bool TryPopulateMetadataReferences(PackageLibraryResolution library, FrameworkName targetFramework, IDictionary<string, IMetadataReference> paths)
         {
             foreach (var assemblyPath in library.LockFileLibrary.CompileTimeAssemblies)
             {

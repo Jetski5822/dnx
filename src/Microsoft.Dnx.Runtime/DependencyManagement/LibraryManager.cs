@@ -11,24 +11,24 @@ namespace Microsoft.Dnx.Runtime
     // REVIEW(anurse): This could also be much more lazy. Some consumers only use the RuntimeLibrary graph, some need the Library graph.
     public class LibraryManager : ILibraryManager
     {
-        private readonly Func<IEnumerable<RuntimeLibrary>> _librariesThunk;
+        private readonly Func<IEnumerable<LibraryResolution>> _librariesThunk;
         private readonly object _initializeLock = new object();
         private Dictionary<string, IEnumerable<Library>> _inverse;
-        private Dictionary<string, RuntimeLibrary> _graph;
+        private Dictionary<string, LibraryResolution> _graph;
         private Dictionary<string, Library> _libraryLookup;
         private bool _initialized;
 
-        public LibraryManager(IEnumerable<RuntimeLibrary> libraries)
+        public LibraryManager(IEnumerable<LibraryResolution> libraries)
             : this(() => libraries)
         {
         }
 
-        public LibraryManager(Func<IEnumerable<RuntimeLibrary>> librariesThunk)
+        public LibraryManager(Func<IEnumerable<LibraryResolution>> librariesThunk)
         {
             _librariesThunk = librariesThunk;
         }
 
-        private Dictionary<string, RuntimeLibrary> Graph
+        private Dictionary<string, LibraryResolution> Graph
         {
             get
             {
@@ -77,9 +77,9 @@ namespace Microsoft.Dnx.Runtime
             return null;
         }
 
-        public RuntimeLibrary GetRuntimeLibrary(string name)
+        public LibraryResolution GetRuntimeLibrary(string name)
         {
-            RuntimeLibrary library;
+            LibraryResolution library;
             if (Graph.TryGetValue(name, out library))
             {
                 return library;
@@ -178,7 +178,7 @@ namespace Microsoft.Dnx.Runtime
             AddRange(parentDependents, libraryDependents);
         }
 
-        private static Func<IEnumerable<Library>> GetLibraryInfoThunk(IEnumerable<RuntimeLibrary> libraries)
+        private static Func<IEnumerable<Library>> GetLibraryInfoThunk(IEnumerable<LibraryResolution> libraries)
         {
             return () => libraries.Select(runtimeLibrary => runtimeLibrary.ToLibrary());
         }

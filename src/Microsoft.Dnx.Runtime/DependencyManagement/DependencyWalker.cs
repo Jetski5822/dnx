@@ -15,14 +15,14 @@ namespace Microsoft.Dnx.Runtime
     public class DependencyWalker
     {
         private readonly IEnumerable<IDependencyProvider> _dependencyProviders;
-        private readonly List<RuntimeLibrary> _libraries = new List<RuntimeLibrary>();
+        private readonly List<LibraryResolution> _libraries = new List<LibraryResolution>();
 
         public DependencyWalker(IEnumerable<IDependencyProvider> dependencyProviders)
         {
             _dependencyProviders = dependencyProviders;
         }
 
-        public IList<RuntimeLibrary> Libraries
+        public IList<LibraryResolution> Libraries
         {
             get { return _libraries; }
         }

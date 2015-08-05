@@ -8,9 +8,9 @@ namespace Microsoft.Dnx.Runtime
 {
     public interface IDependencyProvider
     {
-        RuntimeLibrary GetDescription(LibraryRange libraryRange, FrameworkName targetFramework);
+        LibraryResolution GetDescription(LibraryRange libraryRange, FrameworkName targetFramework);
 
-        void Initialize(IEnumerable<RuntimeLibrary> dependencies, FrameworkName targetFramework, string runtimeIdentifier);
+        void Initialize(IEnumerable<LibraryResolution> dependencies, FrameworkName targetFramework, string runtimeIdentifier);
 
         IEnumerable<string> GetAttemptedPaths(FrameworkName targetFramework);
     }

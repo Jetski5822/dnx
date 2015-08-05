@@ -41,13 +41,13 @@ namespace Microsoft.Dnx.Tooling.List
             _reports = reports;
         }
 
-        public void Walk(IGraphNode<RuntimeLibrary> root)
+        public void Walk(IGraphNode<LibraryResolution> root)
         {
             _assemblyFilePaths = new HashSet<string>(StringComparer.Ordinal);
             _dependencyAssemblySources = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
             _dependencyPackageSources = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
 
-            var libraries = new HashSet<RuntimeLibrary>();
+            var libraries = new HashSet<LibraryResolution>();
             root.DepthFirstPreOrderWalk(visitNode: (node, _) => VisitLibrary(node, _, libraries));
 
             _reports.Information.WriteLine("\n[Target framework {0} ({1})]\n",
@@ -75,9 +75,9 @@ namespace Microsoft.Dnx.Tooling.List
             }
         }
 
-        private bool VisitLibrary(IGraphNode<RuntimeLibrary> node,
-                                  IEnumerable<IGraphNode<RuntimeLibrary>> ancestors,
-                                  ISet<RuntimeLibrary> visitedLibraries)
+        private bool VisitLibrary(IGraphNode<LibraryResolution> node,
+                                  IEnumerable<IGraphNode<LibraryResolution>> ancestors,
+                                  ISet<LibraryResolution> visitedLibraries)
         {
             if (visitedLibraries.Add(node.Item))
             {

@@ -9,9 +9,9 @@ namespace Microsoft.Dnx.Runtime
 {
     public class UnresolvedDependencyProvider : IDependencyProvider
     {
-        public RuntimeLibrary GetDescription(LibraryRange libraryRange, FrameworkName targetFramework)
+        public LibraryResolution GetDescription(LibraryRange libraryRange, FrameworkName targetFramework)
         {
-            return new RuntimeLibrary(
+            return new LibraryResolution(
                 libraryRange,
                 new LibraryIdentity(libraryRange.Name, libraryRange.VersionRange?.MinVersion, libraryRange.IsGacOrFrameworkReference),
                 path: null,
@@ -24,7 +24,7 @@ namespace Microsoft.Dnx.Runtime
             };
         }
 
-        public void Initialize(IEnumerable<RuntimeLibrary> dependencies, FrameworkName targetFramework, string runtimeIdentifier)
+        public void Initialize(IEnumerable<LibraryResolution> dependencies, FrameworkName targetFramework, string runtimeIdentifier)
         {
         }
 

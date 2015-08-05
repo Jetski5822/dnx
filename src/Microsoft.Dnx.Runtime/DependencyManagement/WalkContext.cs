@@ -166,7 +166,7 @@ namespace Microsoft.Dnx.Runtime
                 return item;
             }
 
-            Tuple<IDependencyProvider, RuntimeLibrary> hit = null;
+            Tuple<IDependencyProvider, LibraryResolution> hit = null;
 
             foreach (var dependencyProvider in providers)
             {
@@ -205,7 +205,7 @@ namespace Microsoft.Dnx.Runtime
             return item;
         }
 
-        public void Populate(FrameworkName frameworkName, IList<RuntimeLibrary> libraries)
+        public void Populate(FrameworkName frameworkName, IList<LibraryResolution> libraries)
         {
             var sw = Stopwatch.StartNew();
 
@@ -213,7 +213,7 @@ namespace Microsoft.Dnx.Runtime
             {
                 var resolver = groupByResolver.Key;
 
-                var resolverLibraries = new List<RuntimeLibrary>();
+                var resolverLibraries = new List<LibraryResolution>();
                 foreach(var entry in groupByResolver)
                 {
                     var library = entry.Value.Description;
@@ -261,7 +261,7 @@ namespace Microsoft.Dnx.Runtime
         [DebuggerDisplay("{Key}")]
         private class Item
         {
-            public RuntimeLibrary Description { get; set; }
+            public LibraryResolution Description { get; set; }
             public LibraryIdentity Key { get; set; }
             public IDependencyProvider Resolver { get; set; }
             public IEnumerable<LibraryDependency> Dependencies { get; set; }

@@ -16,17 +16,17 @@ namespace Microsoft.Dnx.Runtime
         public ProjectReferenceDependencyProvider(IProjectResolver projectResolver)
         {
             _projectResolver = projectResolver;
-            Dependencies = Enumerable.Empty<RuntimeLibrary>();
+            Dependencies = Enumerable.Empty<LibraryResolution>();
         }
 
-        public IEnumerable<RuntimeLibrary> Dependencies { get; private set; }
+        public IEnumerable<LibraryResolution> Dependencies { get; private set; }
 
         public IEnumerable<string> GetAttemptedPaths(FrameworkName targetFramework)
         {
             return _projectResolver.SearchPaths.Select(p => Path.Combine(p, "{name}", "project.json"));
         }
 
-        public RuntimeLibrary GetDescription(LibraryRange libraryRange, FrameworkName targetFramework)
+        public LibraryResolution GetDescription(LibraryRange libraryRange, FrameworkName targetFramework)
         {
             if (libraryRange.IsGacOrFrameworkReference)
             {
@@ -84,7 +84,7 @@ namespace Microsoft.Dnx.Runtime
             bool unresolved = targetFrameworkInfo.FrameworkName == null &&
                               project.GetTargetFrameworks().Any();
 
-            return new ProjectRuntimeLibrary(
+            return new ProjectLibraryResolution(
                 libraryRange,
                 project,
                 dependencies,
@@ -93,7 +93,7 @@ namespace Microsoft.Dnx.Runtime
                 !unresolved);
         }
 
-        public virtual void Initialize(IEnumerable<RuntimeLibrary> dependencies, FrameworkName targetFramework, string runtimeIdentifier)
+        public virtual void Initialize(IEnumerable<LibraryResolution> dependencies, FrameworkName targetFramework, string runtimeIdentifier)
         {
             Dependencies = dependencies;
         }

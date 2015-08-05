@@ -8,9 +8,9 @@ namespace Microsoft.Dnx.Tooling.Publish
 {
     public class PublishPackage
     {
-        private readonly RuntimeLibrary _libraryDescription;
+        private readonly LibraryResolution _libraryDescription;
 
-        public PublishPackage(RuntimeLibrary libraryDescription)
+        public PublishPackage(LibraryResolution libraryDescription)
         {
             _libraryDescription = libraryDescription;
         }

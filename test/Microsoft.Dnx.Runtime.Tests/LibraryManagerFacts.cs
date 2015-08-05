@@ -62,10 +62,10 @@ namespace Microsoft.Dnx.Runtime.Tests
             return new LibraryManager(() => libraryInfo);
         }
 
-        private static RuntimeLibrary CreateRuntimeLibrary(string name, IEnumerable<string> dependencies)
+        private static LibraryResolution CreateRuntimeLibrary(string name, IEnumerable<string> dependencies)
         {
             var version = new SemanticVersion("1.0.0");
-            return new RuntimeLibrary(
+            return new LibraryResolution(
                 new LibraryRange(name, frameworkReference: false),
                 new LibraryIdentity(name, version, isGacOrFrameworkReference: false),
                 "Test",

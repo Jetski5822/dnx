@@ -36,7 +36,7 @@ namespace Microsoft.Dnx.Runtime
             return Enumerable.Empty<string>();
         }
 
-        public RuntimeLibrary GetDescription(LibraryRange libraryRange, FrameworkName targetFramework)
+        public LibraryResolution GetDescription(LibraryRange libraryRange, FrameworkName targetFramework)
         {
             if (!libraryRange.IsGacOrFrameworkReference)
             {
@@ -58,7 +58,7 @@ namespace Microsoft.Dnx.Runtime
             {
                 _resolvedPaths[libraryRange.Name] = path;
 
-                return new RuntimeLibrary(
+                return new LibraryResolution(
                     libraryRange,
                     new LibraryIdentity(libraryRange.Name, new SemanticVersion(assemblyVersion), isGacOrFrameworkReference: true),
                     path,
@@ -71,7 +71,7 @@ namespace Microsoft.Dnx.Runtime
             return null;
         }
 
-        public void Initialize(IEnumerable<RuntimeLibrary> dependencies, FrameworkName targetFramework, string runtimeIdentifier)
+        public void Initialize(IEnumerable<LibraryResolution> dependencies, FrameworkName targetFramework, string runtimeIdentifier)
         {
         }
     }
