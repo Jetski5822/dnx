@@ -126,17 +126,13 @@ namespace Microsoft.Dnx.Runtime
                     dependencies = GetDependencies(package, targetFramework, targetLibrary: null);
                 }
 
-                return new RuntimeLibrary(
+                return new PackageRuntimeLibrary(
                     libraryRange,
-                    new LibraryIdentity(package.Id, package.Version, isGacOrFrameworkReference: false),
-                    LibraryTypes.Package,
-                    dependencies)
-                {
-                    Resolved = resolved,
-                    Compatible = compatible,
-                    LockFileLibrary = targetLibrary,
-                    Package = package
-                };
+                    package,
+                    targetLibrary,
+                    dependencies,
+                    resolved,
+                    compatible);
             }
 
             return null;

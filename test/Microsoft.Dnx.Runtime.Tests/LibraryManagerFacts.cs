@@ -73,7 +73,9 @@ namespace Microsoft.Dnx.Runtime.Tests
                 {
                     Library = new LibraryIdentity(name, version, isGacOrFrameworkReference: false),
                     LibraryRange = new LibraryRange(name, frameworkReference: false)
-                }));
+                }),
+                assemblies: Enumerable.Empty<string>(),
+                framework: null);
         }
 
         private class EmptyCache : ICache

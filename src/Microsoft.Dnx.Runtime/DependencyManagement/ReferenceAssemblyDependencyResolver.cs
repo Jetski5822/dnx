@@ -62,7 +62,9 @@ namespace Microsoft.Dnx.Runtime
                     libraryRange,
                     new LibraryIdentity(libraryRange.Name, new SemanticVersion(assemblyVersion), isGacOrFrameworkReference: true),
                     LibraryTypes.ReferenceAssembly,
-                    new[] { name })
+                    Enumerable.Empty<LibraryDependency>(),
+                    new[] { name },
+                    framework: null)
                 {
                     Path = path
                 };

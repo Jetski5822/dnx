@@ -183,12 +183,11 @@ namespace Microsoft.Dnx.Compilation
         private LibraryExport ExportPackage(RuntimeLibrary library, CompilationTarget target)
         {
             // Assert in debug mode
-            Debug.Assert(library.LockFileLibrary != null, "A package-typed library should have an associated Lock File entry!");
-            Debug.Assert(library.Package != null, "A package-typed library should have an associated Package entry!");
+            var packageLibrary = (PackageRuntimeLibrary)library;
 
             var references = new Dictionary<string, IMetadataReference>(StringComparer.OrdinalIgnoreCase);
 
-            if (!TryPopulateMetadataReferences(library, target.TargetFramework, references))
+            if (!TryPopulateMetadataReferences(packageLibrary, target.TargetFramework, references))
             {
                 return null;
             }
@@ -196,7 +195,7 @@ namespace Microsoft.Dnx.Compilation
             // REVIEW: This requires more design
             var sourceReferences = new List<ISourceReference>();
 
-            foreach (var sharedSource in GetSharedSources(library, target.TargetFramework))
+            foreach (var sharedSource in GetSharedSources(packageLibrary, target.TargetFramework))
             {
                 sourceReferences.Add(new SourceFileReference(sharedSource));
             }
@@ -206,16 +205,8 @@ namespace Microsoft.Dnx.Compilation
 
         private LibraryExport ExportProject(RuntimeLibrary library, CompilationTarget target)
         {
-            // Assert in debug mode
-            Debug.Assert(library.Project != null, "A project-typed library should have an associated Project!");
-
-            // Throw in release mode
-            if (library.Project == null)
-            {
-                throw new InvalidOperationException("Project-typed library does not have an associated Project!");
-            }
             return ProjectExporter.ExportProject(
-                library.Project,
+                ((ProjectRuntimeLibrary)library).Project,
                 target,
                 _compilationEngine,
                 _projectGraphProvider);
@@ -228,7 +219,7 @@ namespace Microsoft.Dnx.Compilation
             return new LibraryExport(new MetadataFileReference(library.Identity.Name, library.Path));
         }
 
-        private IEnumerable<string> GetSharedSources(RuntimeLibrary library, FrameworkName targetFramework)
+        private IEnumerable<string> GetSharedSources(PackageRuntimeLibrary library, FrameworkName targetFramework)
         {
             var directory = Path.Combine(library.Path, "shared");
 
@@ -237,7 +228,7 @@ namespace Microsoft.Dnx.Compilation
         }
 
 
-        private bool TryPopulateMetadataReferences(RuntimeLibrary library, FrameworkName targetFramework, IDictionary<string, IMetadataReference> paths)
+        private bool TryPopulateMetadataReferences(PackageRuntimeLibrary library, FrameworkName targetFramework, IDictionary<string, IMetadataReference> paths)
         {
             foreach (var assemblyPath in library.LockFileLibrary.CompileTimeAssemblies)
             {

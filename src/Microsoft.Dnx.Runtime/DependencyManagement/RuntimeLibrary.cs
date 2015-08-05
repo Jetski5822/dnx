@@ -13,34 +13,6 @@ namespace Microsoft.Dnx.Runtime
 {
     public class RuntimeLibrary
     {
-        public RuntimeLibrary(LibraryRange requestedRange, LibraryIdentity identity, string type)
-            : this(requestedRange, identity, type, Enumerable.Empty<LibraryDependency>(), assemblies: Enumerable.Empty<string>(), framework: null)
-        {
-        }
-
-        public RuntimeLibrary(LibraryRange requestedRange, LibraryIdentity identity, string type, IEnumerable<string> assemblies)
-            : this(requestedRange, identity, type, Enumerable.Empty<LibraryDependency>(), assemblies, framework: null)
-        {
-        }
-
-        public RuntimeLibrary(LibraryRange requestedRange, LibraryIdentity identity, string type, IEnumerable<LibraryDependency> dependencies)
-            : this(requestedRange, identity, type, dependencies, assemblies: Enumerable.Empty<string>(), framework: null)
-        {
-        }
-
-        public RuntimeLibrary(
-            LibraryRange requestedRange,
-            LibraryIdentity identity,
-            Project project,
-            IEnumerable<LibraryDependency> dependencies,
-            IEnumerable<string> assemblies,
-            FrameworkName framework)
-            : this(requestedRange, identity, LibraryTypes.Project, dependencies, assemblies, framework)
-        {
-            Path = project.ProjectFilePath;
-            Project = project;
-        }
-
         public RuntimeLibrary(
             LibraryRange requestedRange,
             LibraryIdentity identity,
@@ -61,18 +33,13 @@ namespace Microsoft.Dnx.Runtime
         public LibraryIdentity Identity { get; }
 
         public string Type { get; }
-        public FrameworkName Framework { get; }
+        public FrameworkName Framework { get; set; }
 
         public string Path { get; set; }
         public bool Resolved { get; set; } = true;
         public bool Compatible { get; set; } = true;
         public IEnumerable<string> Assemblies { get; set; }
         public IEnumerable<LibraryDependency> Dependencies { get; set; }
-
-        // TODO(anurse): UGLY UGLY UGLY! Don't let it go in to dev like this!
-        public Project Project { get; set; }
-        public LockFileTargetLibrary LockFileLibrary { get; set; }
-        public PackageInfo Package { get; set; }
 
         internal Library ToLibrary()
         {

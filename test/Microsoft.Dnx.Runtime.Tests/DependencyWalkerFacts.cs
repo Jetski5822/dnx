@@ -201,7 +201,9 @@ namespace Loader.Tests
                 libraryRange,
                 new LibraryIdentity(libraryRange.Name, libraryRange.VersionRange.MinVersion, isGacOrFrameworkReference: false),
                 type: "Test",
-                dependencies: entry.Dependencies);
+                dependencies: entry.Dependencies,
+                assemblies: Enumerable.Empty<string>(),
+                framework: null);
         }
 
         public void Initialize(IEnumerable<RuntimeLibrary> packages, FrameworkName frameworkName, string runtimeIdentifier)

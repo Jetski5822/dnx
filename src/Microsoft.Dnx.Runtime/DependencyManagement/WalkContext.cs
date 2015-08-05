@@ -213,27 +213,17 @@ namespace Microsoft.Dnx.Runtime
             {
                 var resolver = groupByResolver.Key;
 
-                var descriptions = groupByResolver.Select(entry =>
+                var resolverLibraries = new List<RuntimeLibrary>();
+                foreach(var entry in groupByResolver)
                 {
-                    return new RuntimeLibrary(
-                        entry.Value.Description.RequestedRange,
-                        entry.Value.Key,
-                        entry.Value.Description.Type,
-                        entry.Value.Description.Dependencies.SelectMany(CorrectDependencyVersion).ToList(),
-                        entry.Value.Description.Assemblies,
-                        entry.Value.Description.Framework ?? frameworkName)
-                    {
-                        Path = entry.Value.Description.Path,
-                        Resolved = entry.Value.Description.Resolved,
-                        Compatible = entry.Value.Description.Compatible,
-                        Project = entry.Value.Description.Project,
-                        LockFileLibrary = entry.Value.Description.LockFileLibrary,
-                        Package = entry.Value.Description.Package
-                    };
-                }).ToList();
+                    var library = entry.Value.Description;
+                    library.Dependencies = library.Dependencies.SelectMany(CorrectDependencyVersion).ToList();
+                    library.Framework = library.Framework ?? frameworkName;
+                    resolverLibraries.Add(library);
+                }
 
-                resolver.Initialize(descriptions, frameworkName, runtimeIdentifier: null);
-                libraries.AddRange(descriptions);
+                resolver.Initialize(resolverLibraries, frameworkName, runtimeIdentifier: null);
+                libraries.AddRange(resolverLibraries);
             }
 
             sw.Stop();
